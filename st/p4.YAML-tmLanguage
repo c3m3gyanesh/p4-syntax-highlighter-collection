@@ -1,0 +1,53 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+# the scope are: keyword/constant/variable/meta/storage/entity/punctuation/string /comment
+---
+name: p4
+scopeName: source.p4
+fileTypes: [p4]
+uuid: 1a864ad6-0f6b-485e-9b73-245db18e4852
+
+patterns:
+- include: '#p4-translation'
+
+repository:
+  p4-translation:
+    patterns:
+    - include: '#comments'
+    - include: '#p4-preprocessors'
+
+  comments:
+    patterns:
+    - name: comment.block.p4
+      begin: \s*(/\*)
+      end: (\*/)(\n?)
+      # endCaptures:
+      #   '2': {name: punctuation.whitespace.newline.p4}
+      # captures:
+      #   '1': {name: punctuation.definition.comment.block.p4}
+    - name: comment.line.double.slash.p4
+      begin: \s*(//)
+      # beginCaptures:
+      #   '1': {name: punctuation.definition.comment.line.double.slash.p4}
+      end: (?<=$\n)(?<!\\$\n)
+
+  p4-preprocessors:
+    patterns:
+    - include: '#define-directive'
+    - include: '#include-header-directive'
+
+  define-directive:
+    patterns:
+    - name: keyword.define.p4
+      comment: #define <name> <val> directives
+      begin: ^\s*(#)(?=\s*(define)\s+[a-zA-Z_]\w*+)
+      beginCaptures:
+        '0': {name: keyword.other.preprocessor.p4}
+      end: (?<=$\n)(?<!\\$\n)
+      patterns:
+      - include: '#literal-number'
+
+  include-header-directive:
+    patterns:
+    - name: keyword.include.p4
+    comment: include headers
+    match: ˆ\s*(#)\b(include)\b
