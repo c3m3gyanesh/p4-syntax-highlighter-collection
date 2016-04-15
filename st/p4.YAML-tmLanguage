@@ -1,5 +1,25 @@
 # [PackageDev] target_format: plist, ext: tmLanguage
-# the scope are: keyword/constant/variable/meta/storage/entity/punctuation/string /comment
+comment: |-
+  https://github.com/c3m3gyanesh/p4-syntax-highlighter
+
+  Derived from various syntax definitaion files
+        - c.tmLanguage
+        - babel.tmLanguage
+        - p4.vim 
+
+  Author  - Gyanesh Patra <c3m3gyanesh@gmail.com> 
+  Version - 1.0
+  Date    - 15 April 2016
+  >> With each modification, please update the date and version.
+
+  Still it needs a lot of imporvements.
+  Todo: 
+    Numericals can be improved.
+    Action, meter etc should be defined as function blocks.
+    Updated with all entities missed from the specification.
+    if/ifdef/endif
+    And much more.....
+
 ---
 name: p4
 scopeName: source.p4
@@ -12,22 +32,18 @@ patterns:
 repository:
   p4-translation:
     patterns:
-    - include: '#comments'
+    - include: '#p4-comments'
     - include: '#p4-preprocessors'
+    - include: '#p4-abstractions'
+    - include: '#p4-literal-number'
 
-  comments:
+  p4-comments:
     patterns:
     - name: comment.block.p4
       begin: \s*(/\*)
       end: (\*/)(\n?)
-      # endCaptures:
-      #   '2': {name: punctuation.whitespace.newline.p4}
-      # captures:
-      #   '1': {name: punctuation.definition.comment.block.p4}
     - name: comment.line.double.slash.p4
       begin: \s*(//)
-      # beginCaptures:
-      #   '1': {name: punctuation.definition.comment.line.double.slash.p4}
       end: (?<=$\n)(?<!\\$\n)
 
   p4-preprocessors:
@@ -35,19 +51,207 @@ repository:
     - include: '#define-directive'
     - include: '#include-header-directive'
 
+  p4-preprocessor-lex:
+    patterns:
+    - include: '#comments'
+    - include: '#lex-continuation'
+    - include: '#lex-newline'
+
   define-directive:
     patterns:
     - name: keyword.define.p4
       comment: #define <name> <val> directives
-      begin: ^\s*(#)(?=\s*(define)\s+[a-zA-Z_]\w*+)
-      beginCaptures:
-        '0': {name: keyword.other.preprocessor.p4}
+      begin: ^\s*(#)(define)(\s+[a-zA-Z_]\w*+)
       end: (?<=$\n)(?<!\\$\n)
       patterns:
-      - include: '#literal-number'
-
+      - include: '#p4-literal-number'
+ 
   include-header-directive:
     patterns:
     - name: keyword.include.p4
-    comment: include headers
-    match: ˆ\s*(#)\b(include)\b
+      comment: include headers
+      # match: ^\s*(#)(include)\b
+      begin: ^\s*(#)(include)\b
+      # \s+[a-zA-Z_]\w*+)
+      beginCaptures:
+        '0': {name: keyword.include.start.p4}
+      end: (?:("[^"]*?)|(<[^>]*?))(\n)|(?<=$\n)(?<!\\$\n)
+      #1st Capturing group ("[^"]*?) matches the characters " literally
+      #2nd Capturing group (<[^>]*?) matches the characters < literally
+      # 3rd Capturing group (\n) matches a line-feed (newline) character 
+      # (?<=$\n)(?<!\\$\n)
+        # (?<=$\n) Positive Lookbehind - Assert that the regex below can be matched
+        # (?<!\\$\n) Negative Lookbehind - Assert that it is impossible to match the regex below
+      endCaptures:
+        '1': {name: string.quoted.double.include.p4} 
+        '2': {name: string.lt-gt.include.p4}
+        '3': {name: invalid.unexpected-end-of-line.p4}
+      patterns:
+      - include: '#include-header-directive-internals'
+
+  include-header-directive-internals:
+    patterns:
+    - include: '#p4-preprocessor-lex'
+    - name: string.quoted.double.include.p4
+      begin: '"|(?=.*?")'
+      beginCaptures:
+        '0': {name: punctuation.definition.string.begin.p4}
+      end: '"|(?<=^|[^\\])(?=\s*\n)'
+      endCaptures:
+        '0': {name: punctuation.definition.string.end.p4}
+    - name: string.quoted.other.lt-gt.include.c
+      begin: <(?=.*?>)
+      beginCaptures:
+        '0': {name: punctuation.definition.string.begin.p4}
+      end: '>|(?<=^|[^\\])(?=\s*\n)'
+      endCaptures:
+        '0': {name: punctuation.definition.string.end.p4}
+    - name: meta.parens.c
+      begin: \(
+      end: \)|(?<=^|[^\\])(?=\s*\n)
+      patterns:
+      - include: '#include-header-directive-internals' 
+    
+  p4-abstractions:
+    patterns:
+    - include: '#p4-object-keyword'
+    - include: '#p4-object-attribute-keyword'
+    - include: '#p4-match-type-keyword'
+    - include: '#p4-counter-type-keyword'
+    - include: '#p4-todo'
+    - include: '#p4-builtin'
+    - include: '#p4-primitives'
+    - include: '#p4-conditional'
+    - include: '#p4-statement'
+    - include: '#p4-constants'
+    - include: '#p4-stateful'
+
+  p4-object-keyword:
+    patterns:
+    - name: keyword.object.p4
+      match: |-
+        (?x)
+        \b(parser|table|action
+          |header_type|header|metadata
+          |field_list|field_list_calculation|calculated_field
+          |control
+          |parser_value_set)
+        \b
+
+  p4-object-attribute-keyword:
+    patterns:
+    - name: keyword.object.attribute.p4
+      match: |-
+        (?x)
+        # Tables / Header Types/ FieldList Calculation/ Calculated Fields
+        \b(reads|actions|min_size|max_size|size
+          |fields|length|max_length
+          |input|algorithm|output_width
+          |verify|update
+          |type|direct|static
+          |instance_count|min_width|saturating)
+        \b
+
+  p4-match-type-keyword:
+    patterns:
+    - name: keyword.match.type.p4
+      match: \b(exact|ternary|lpm|range|valid)\b
+
+  p4-counter-type-keyword:
+    patterns:
+    - name: keyword.counter.type.p4
+      match: \b(bytes|packets)\b
+
+  p4-todo:
+    patterns:
+    - name: keyword.todo.p4
+      match: \b(contained|FIXME|TODO|ToDo|todo)\b
+
+  p4-builtin:
+    patterns:
+    - name: keyword.builtin.p4
+      match: |-
+        (?x)
+        \b
+        (apply|hit|miss
+          |extract|set_metadata)
+        \b
+
+  p4-stateful:
+    patterns:
+    - name: storage.stateful.p4
+      match: \b(counter|meter|register)\b
+
+  p4-primitives:
+    patterns:
+    - name: keyword.primitives.p4
+      match: |-
+        (?x)
+        \b(add_header|copy_header|remove_header
+          |modify_field|add_to_field
+          |set_field_to_hash_index
+          |modify_field_with_hash_based_offset
+          |truncate|drop
+          |count
+          |generate_digest
+          |resubmit|recirculate
+          |clone_ingress_pkt_to_ingress
+          |clone_egress_pkt_to_ingress
+          |clone_ingress_pkt_to_egress
+          |clone_egress_pkt_to_egress)
+        \b
+
+  p4-conditional:
+    patterns:
+    - name: keyword.conditional.p4
+      match: \b(if|else|select)\b
+
+  p4-statement:
+    patterns:
+    - name: keyword.statement.p4
+      match: return
+  
+  p4-constants:
+    patterns:
+    - name: keyword.constants.p4
+      match: P4_PARSING_DONE
+
+  p4-literal-number:
+    patterns:
+    - name: invalid.illegal.numeric.hex.p4
+      match: (?i)(?:\B[-+]|\b)0x[0-9a-f]*\.(\B|\b[0-9]+)
+
+    - name: invalid.illegal.numeric.octal.p4
+      match: (?:\B[-+]|\b)0[0-9]+\.(\B|\b[0-9]+)
+
+    - name: constant.numeric.p4
+      match: >-
+        (?xi)
+          (?:\B[-+])?
+          (?:
+            \b0b[0-1]*|                 # binary
+            \b0o[0-7]*|                 # octal
+            \b0x[0-9a-f]*|              # hex
+            (
+              \B\.[0-9]+|               # e.g. .123
+              \b[0-9]+(\.[0-9]*)?       # e.g. 123.123, 123. or 123
+            )(e[-+]?[0-9]+)?            # e.g. e+123, E-123
+          (\s|;)                          # e.g. To avoid 234ABC
+          )
+
+  lex-continuation:
+    patterns:
+    - name: punctuation.separator.continuation.c
+      match: (\\)$(\n?)
+      captures:
+        '1': {name: keyword.other.line-continuation.c}
+        '2': {name: punctuation.whitespace.newline.c}
+    - match: \\(\s+?)(?=\n)$
+      captures:
+        '1': {name: invalid.deprecated.space-after-continuation.c}
+
+  lex-newline:
+    name: punctuation.whitespace.newline.c
+    match: $\n
+
+...
