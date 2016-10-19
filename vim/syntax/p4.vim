@@ -72,23 +72,32 @@ syn keyword p4Constants     P4_PARSING_DONE
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" 
 " Apply highlight groups to syntax groups defined above                          
+" For version 5.7 and earlier: only when not done already
+" For version 5.8 and later: only when an item doesn't have highlighting yet
+if version >= 508 || !exists("did_p4_syntax_inits")
+  if version <= 508
+    let did_p4_syntax_inits = 1
+    command -nargs=+ HiLink hi link <args>
+  else
+    command -nargs=+ HiLink hi def link <args>
+  endif
 
-"command -nargs=+ HiLink hi def link &lt;args&gt;                                
-command -nargs=+ HiLink hi link <args>                                           
+  HiLink p4ObjectKeyword          Type
+  HiLink p4Comment                Comment
+  HiLink p4BlockComment           Comment
+  HiLink p4Preprocessor           Macro
+  HiLink p4ObjectAttributeKeyword Keyword
+  HiLink p4MatchTypeKeyword       Keyword
+  HiLink p4CounterTypeKeyword     Keyword
+  HiLink p4DecimalInt             Integer
+  HiLink p4HexadecimalInt         Integer
+  HiLink p4Builtin                Function
+  HiLink p4Conditional            Conditional
+  HiLink p4Statement              Statement
+  HiLink p4Constants              Constant
+  HiLink p4Primitives             Function
 
-HiLink p4ObjectKeyword          Type                                             
-HiLink p4Comment                Comment                                          
-HiLink p4BlockComment           Comment                                          
-HiLink p4Preprocessor           Macro                                            
-HiLink p4ObjectAttributeKeyword Keyword                                          
-HiLink p4MatchTypeKeyword       Keyword                                          
-HiLink p4CounterTypeKeyword     Keyword                                          
-HiLink p4DecimalInt             Integer                                          
-HiLink p4HexadecimalInt         Integer                                          
-HiLink p4Builtin                Function                                         
-HiLink p4Conditional            Conditional                                      
-HiLink p4Statement              Statement                                        
-HiLink p4Constants              Constant                                         
-HiLink p4Primitives             Function                                         
+  delcommand HiLink
+endif
 
 let b:current_syntax = "p4"  
