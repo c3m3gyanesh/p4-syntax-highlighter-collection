@@ -15,8 +15,8 @@ endif
 " Use case sensitive matching of keywords                                        
 syn case match                                                                   
 
-syn keyword p4ObjectKeyword parser table action                                  
-syn keyword p4ObjectKeyword header_type header action metadata                   
+syn keyword p4ObjectKeyword parser table action action_profile                                
+syn keyword p4ObjectKeyword header_type header action action_profile metadata                   
 syn keyword p4ObjectKeyword field_list field_list_calculation calculated_field   
 syn keyword p4ObjectKeyword control                                              
 syn keyword p4ObjectKeyword parser_value_set                                     
