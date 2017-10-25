@@ -32,7 +32,8 @@ syn keyword p4ObjectAttributeKeyword input algorithm output_width
 syn keyword p4ObjectAttributeKeyword verify update                               
 " Counters and meters                                                            
 syn keyword p4ObjectAttributeKeyword type direct static                          
-syn keyword p4ObjectAttributeKeyword instance_count min_width saturating         
+syn keyword p4ObjectAttributeKeyword instance_count min_width saturating
+syn keyword p4ObjectAttributeKeyword result pre_color
 
 syn keyword p4MatchTypeKeyword       exact ternary lpm range valid               
 
