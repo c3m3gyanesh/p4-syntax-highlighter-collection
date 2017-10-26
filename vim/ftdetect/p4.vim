@@ -1,1 +1,1 @@
-au BufRead,BufNewFile *.p4      set filetype=p4  
+au BufRead,BufNewFile *.p4 set filetype=p4  
