@@ -52,8 +52,10 @@ syn match   p4HexadecimalInt "\&lt;0x\x\+\&gt;"
 syn keyword p4Builtin       apply hit miss                                       
 syn keyword p4Builtin       extract set_metadata                                 
 
-syn keyword p4Primitives    add_header copy_header remove_header                 
-syn keyword p4Primitives    modify_field add_to_field                            
+syn keyword p4Primitives    add_header copy_header remove_header                    
+syn keyword p4Primitives    modify_field
+syn keyword p4Primitives    add_to_field add
+syn keyword p4Primitives    subtract_from_field subtract
 syn keyword p4Primitives    set_field_to_hash_index                              
 " legacy, to remove later                                                        
 syn keyword p4Primitives    modify_field_with_hash_based_offset                  
