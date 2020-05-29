@@ -14,6 +14,15 @@ You can install the p4-syntax-highlighter package in SublimeText from the packag
       - Use the install script:  
         ```curl -o- -L https://raw.githubusercontent.com/c3m3gyanesh/p4-syntax-highlighter-collection/master/vim/install.sh | bash```.
 
+## Configuration
+* VIM syntax highlighting supports both P4_14 and P4_16. Either format can
+  be disabled by adding one of the following to your `.vimrc` or `.gvimrc`
+  file:
+  ```
+  let p4_no_p4_14 = 1  " Disables P4_14 syntax highlighting
+  let p4_no_p4_16 = 1  " Disables P4_16 syntax highlighting
+  ```
+
 ## How to Contribute? 
 * To contribute to the syntax highlighter for VIM and EMACS, please fork this current repo and update the corresponding files. 
 * To contribute to the syntax highlighter for Sublime Text editor, please fork the "https://github.com/c3m3gyanesh/p4-syntax-highlighter.git" project and make your changes.
